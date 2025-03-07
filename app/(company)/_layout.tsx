@@ -9,24 +9,23 @@ export default function RootLayout() {
         headerTitle: () => (
           <View style={styles.profileContainer}>
             <Image
-              source={{ uri: "https://via.placeholder.com/50" }} // Imagen de perfil
+              source={{ uri: "https://via.placeholder.com/50" }} // Imagen de empresa
               style={styles.profileImage}
             />
-            <Text style={styles.profileName}>Hola, Usuario</Text>
+            <Text style={styles.profileName}>Bienvenido, Empresa</Text>
           </View>
         ),
         headerStyle: {
           backgroundColor: "#25292e",
         },
-        headerTitleAlign: "left", // Alinea la info del perfil a la izquierda
+        headerTitleAlign: "left",
         headerTintColor: "#fff",
       }}
     >
-      <Tabs.Screen name="home" options={{ title: "Home" }} />
-      <Tabs.Screen name="about" options={{ title: "About" }} />
-      <Tabs.Screen name="add" options={{ title: "Add" }} />
-      <Tabs.Screen name="searchbar" options={{ title: "Jobs" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
+      <Tabs.Screen name="post-job" options={{ title: "Publicar Oferta" }} />
+      <Tabs.Screen name="my-jobs" options={{ title: "Mis Ofertas" }} />
+      <Tabs.Screen name="profile" options={{ title: "Perfil" }} />
     </Tabs>
   );
 }

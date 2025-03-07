@@ -1,39 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Stack } from "expo-router";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+  return <Stack screenOptions={{
+    headerShown: false,
+    animation: "fade", // 💡 Usa "fade" para evitar el flash blanco
+    animationDuration: 10, // Hace la animación más lenta (500ms)
+    presentation: "transparentModal", // 💡 Evita que aparezca un fondo blanco
+    headerTransparent: true, // Hace que el header no ocupe espacio
+    headerStyle: {
+      backgroundColor: '#ff8c00'
+    },
+    headerTitleAlign: "center", 
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+    contentStyle: {
+      paddingHorizontal: 0,
+      paddingTop: 0,
+      backgroundColor: '#25292e',
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+  }}
+  
+  >
+    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <Stack.Screen name="+not-found" />
+  </Stack>
+  
 }
+
