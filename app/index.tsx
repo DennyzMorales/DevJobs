@@ -1,7 +1,8 @@
 import { Text, View,StyleSheet,Image, TouchableOpacity } from "react-native";
-import { Link,router } from 'expo-router';
+import { Link,useRouter } from 'expo-router';
 import { globalStyles } from '../app/styles/globalStyles'; // Importa los estilos
 const LogoImage = require('../assets/images/Logo.png');
+const router = useRouter();
 
 export default function Index() {
   return (
@@ -10,7 +11,7 @@ export default function Index() {
       style={style.container}
     >
       <Image source={LogoImage} style={style.image} />
-      <Link href="/about" style={style.title}>
+      <Link href="/(tabs)/home" style={style.title}>
         DeveloperJobs
       </Link>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

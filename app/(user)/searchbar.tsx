@@ -1,5 +1,9 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { useAuth } from "../hooks/useAuth";
+
+
 
 // 🔹 Datos de empleos simulados
 const jobs = [
@@ -12,7 +16,9 @@ interface Props {
     search: string;
     onSearch: (text: string) => void;
   }
+  
 export default function JobsScreen() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,7 +47,16 @@ export default function JobsScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.jobCard} 
-            onPress={() => setModalVisible(true)} // 🚨 Bloquea postulación y abre modal
+            onPress={() => {
+              if (!user) {
+                router.push({ 
+                  pathname: "/components/authComponents/LoginForm",
+                  params: { success: "true" } // Solo pasamos un string, no la función directamente
+                });
+              } else {
+                setModalVisible(true); // Muestra el modal si ya está autenticado
+              }
+            }}
           >
             <Text style={styles.jobTitle}>{item.title}</Text>
             <Text style={styles.jobCompany}>{item.company}</Text>

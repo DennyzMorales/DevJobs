@@ -1,44 +1,99 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { 
+  View, Text, Image, TouchableOpacity, TextInput, StyleSheet, Alert, ScrollView 
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
+import {auth} from "../../auth/firebase"
+import { logoutUser } from "@/auth/authService";
+import { signOut } from "firebase/auth";
 
-export default function HomeScreen() {
-  const [selectedDay, setSelectedDay] = useState("mo");
+export default function ProfileScreen() {
+  const [name, setName] = useState("Juan Pérez");
+  const [email, setEmail] = useState("juan.perez@email.com");
+  const [phone, setPhone] = useState("+51 999 999 999");
+  const [bio, setBio] = useState("Desarrollador de software en busca de oportunidades.");
+  const [profileImage, setProfileImage] = useState("https://via.placeholder.com/100");
+  const [cv, setCV] = useState<string | null>(null);
+  
 
-  const days = ["su", "mo", "tu", "we", "th", "fr", "sa"];
+  // 📌 Seleccionar imagen de perfil
+  const handlePickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
+
+  // 📌 Seleccionar un archivo PDF (CV)
+  const handlePickCV = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf', 
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setCV(result.assets[0].uri);
+    }
+  };
+  
+  // 📌 Guardar los cambios
+  const handleSave = () => {
+    Alert.alert("Perfil actualizado", "Tus cambios han sido guardados.");
+  };
+
+  // 📌 Cerrar sesión
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert("Sesión cerrada", "Has cerrado sesión correctamente.");
+      // Aquí puedes redirigir al usuario a la pantalla de inicio de sesión
+    } catch (error) {
+      Alert.alert("Error", "No se pudo cerrar sesión. Inténtalo de nuevo.");
+    }
+  };
 
   return (
     <View style={styles.container}>
       {/* 🔹 Header */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Recruitment Process</Text>
+        <Text style={styles.headerText}>Mi Perfil</Text>
       </View>
 
-      {/* 🔹 Content Section */}
-      <View style={styles.content}>
-        <Text style={styles.contentText}>Showing Jobs for {selectedDay.toUpperCase()}</Text>
-      </View>
-
-      {/* 🔹 Secondary Navigation Bar (Above Primary Navigation) */}
-      <View style={styles.secondaryNav}>
-        {days.map((day) => (
-          <TouchableOpacity
-            key={day}
-            style={[styles.navItem, selectedDay === day && styles.activeNavItem]}
-            onPress={() => setSelectedDay(day)}
-          >
-            <Text style={[styles.navText, selectedDay === day && styles.activeNavText]}>
-              {day}
-            </Text>
+      {/* 🔹 ScrollView para desplazamiento */}
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <View style={styles.profileSection}>
+          <TouchableOpacity onPress={handlePickImage}>
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
           </TouchableOpacity>
-        ))}
-      </View>
+          <Text style={styles.uploadText}>Cambiar foto</Text>
 
-      {/* 🔹 Primary Navigation Bar (Bottom Tabs) */}
-      <View style={styles.primaryNav}>
-        <Text style={styles.primaryNavText}>🏠 Home</Text>
-        <Text style={styles.primaryNavText}>🔍 Search</Text>
-        <Text style={styles.primaryNavText}>👤 Profile</Text>
-      </View>
+          {/* 🔹 Formulario */}
+          <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Nombre" />
+          <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Correo electrónico" keyboardType="email-address" />
+          <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="Teléfono" keyboardType="phone-pad" />
+          <TextInput style={[styles.input, styles.textArea]} value={bio} onChangeText={setBio} placeholder="Descripción" multiline />
+
+          {/* 🔹 Botón para subir CV */}
+          <TouchableOpacity style={styles.uploadButton} onPress={handlePickCV}>
+            <Text style={styles.uploadButtonText}>{cv ? "CV cargado" : "Subir CV (PDF)"}</Text>
+          </TouchableOpacity>
+
+          {/* 🔹 Botones de acción */}
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -46,47 +101,39 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8f9fa" },
 
-  // 🔹 Header Styling
+  // 🔹 ScrollView container
+  scrollContainer: { alignItems: "center", paddingBottom:100 },
+
+  // 🔹 Header
   header: { padding: 20, backgroundColor: "#FF8C00", borderBottomLeftRadius: 20, borderBottomRightRadius: 20 },
   headerText: { fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center" },
 
-  // 🔹 Content Section
-  content: { flex: 1, alignItems: "center", justifyContent: "center" },
-  contentText: { fontSize: 18, color: "#333" },
+  // 🔹 Profile Section
+  profileSection: { alignItems: "center", marginTop: 20 },
+  profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+  uploadText: { fontSize: 14, color: "#007bff", marginBottom: 10 },
 
-  // 🔹 Secondary Navigation (Above Primary Navigation)
-  secondaryNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  // 🔹 Inputs
+  input: {
+    width: "90%",
     backgroundColor: "#fff",
-    paddingVertical: 10,
-    marginHorizontal: 20,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-    position: "absolute",
-    bottom: 70, // Puts it above primary nav
-    left: 0,
-    right: 0,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
-  navItem: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
-  activeNavItem: { backgroundColor: "#FF8C00" },
-  navText: { fontSize: 16, color: "#555" },
-  activeNavText: { color: "#fff", fontWeight: "bold" },
+  textArea: { height: 80 },
 
-  // 🔹 Primary Navigation (Bottom Bar)
-  primaryNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#222",
-    paddingVertical: 15,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  primaryNavText: { color: "#fff", fontSize: 16 },
+  // 🔹 Botón Subir CV
+  uploadButton: { backgroundColor: "#007bff", padding: 12, borderRadius: 8, marginBottom: 10, width: "90%" },
+  uploadButtonText: { color: "#fff", fontSize: 16, textAlign: "center", fontWeight: "bold" },
+
+  // 🔹 Botón Guardar Cambios
+  saveButton: { backgroundColor: "#28a745", padding: 12, borderRadius: 8, marginBottom: 10, width: "90%" },
+  saveButtonText: { color: "#fff", fontSize: 16, textAlign: "center", fontWeight: "bold" },
+
+  // 🔹 Botón Cerrar Sesión
+  logoutButton: { backgroundColor: "#dc3545", padding: 12, borderRadius: 8, width: "90%" },
+  logoutButtonText: { color: "#fff", fontSize: 16, textAlign: "center", fontWeight: "bold" },
 });
